@@ -18,7 +18,7 @@ from .block_statements import *
 from .utils import CHAR_BIT
 
 def get_reader(input, isfree=None, isstrict=None, include_dirs = None, source_only = None,
-               ignore_comments = True):
+               ignore_comments = True, filename = None):
     """ Returns Fortran reader instance.
 
     Parameters
@@ -70,7 +70,8 @@ def get_reader(input, isfree=None, isstrict=None, include_dirs = None, source_on
             return parse(c_input, isfree, isstrict, include_dirs)
         reader = FortranFileReader(input, include_dirs = include_dirs, source_only = source_only)
     elif isinstance(input, str):
-        reader = FortranStringReader(input, include_dirs = include_dirs, source_only = source_only)
+        reader = FortranStringReader(input, include_dirs = include_dirs, source_only = source_only,
+                filename = filename)
     else:
         raise TypeError('Expected string or filename input but got %s' % (type(input)))
     if isfree is None: isfree = reader.isfree
@@ -79,7 +80,7 @@ def get_reader(input, isfree=None, isstrict=None, include_dirs = None, source_on
     return reader
 
 def parse(input, isfree=None, isstrict=None, include_dirs = None, source_only = None,
-          ignore_comments = True, analyze=True):
+          ignore_comments = True, analyze=True, filename = None):
     """ Parse input and return Statement tree.
 
     Parameters
@@ -151,7 +152,8 @@ def parse(input, isfree=None, isstrict=None, include_dirs = None, source_only = 
     get_reader
     """
     from .parsefortran import FortranParser
-    reader = get_reader(input, isfree, isstrict, include_dirs, source_only)
+    reader = get_reader(input, isfree, isstrict, include_dirs, source_only,
+            filename = filename)
     parser = FortranParser(reader, ignore_comments = ignore_comments)
     parser.parse()
     if analyze:

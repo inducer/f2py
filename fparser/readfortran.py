@@ -731,7 +731,7 @@ class FortranReaderBase(object):
     def format_message(self, kind, message, startlineno, endlineno,
                        startcolno=0, endcolno=-1):
         back_index = {'warning':2,'error':3,'info':0}.get(kind.lower(),3)
-        r = ['While processing %r (mode=%r)..' % (self.id, self.mode)]
+        r = ['While processing %r (mode=%r)..' % (self.filename, self.mode)]
         for i in range(max(1,startlineno-back_index),startlineno):
             r.append('%5d:%s' % (i,self.source_lines[i-1]))
         for i in range(startlineno,min(endlineno+back_index,len(self.source_lines))+1):
@@ -1186,6 +1186,7 @@ class FortranFileReader(FortranReaderBase):
     def __init__(self, filename, include_dirs = None, source_only=None):
         isfree, isstrict = get_source_info(filename)
         self.id = filename
+        self.filename = filename
         self.file = open(filename,'r')
         FortranReaderBase.__init__(self, self.file, isfree, isstrict)
         if include_dirs is None:
@@ -1201,8 +1202,11 @@ class FortranFileReader(FortranReaderBase):
 
 class FortranStringReader(FortranReaderBase):
 
-    def __init__(self, string, include_dirs = None, source_only = None):
+    def __init__(self, string, include_dirs = None, source_only = None, filename = None):
         self.id = 'string-'+string
+        if filename is None:
+            filename = self.id
+        self.filename = filename
         source = StringIO(string)
         isfree, isstrict = get_source_info_str(string)
         FortranReaderBase.__init__(self, source, isfree, isstrict)
